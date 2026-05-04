@@ -1,0 +1,13 @@
+{
+  "name": "pacman",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "engines": { "node": ">=22" },
+  "pnpm": { "onlyBuiltDependencies": ["esbuild"] },
+  "scripts": {
+    "dev": "pnpm --filter @pacman/web dev",
+    "build": "pnpm --filter @pacman/web build",
+    "preview": "pnpm --filter @pacman/web preview",
+    "typecheck": "pnpm --filter @pacman/web exec tsc -b"
+  }
+}
