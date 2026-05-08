@@ -3,6 +3,7 @@ import { useRef, useEffect, useCallback } from "react";
 interface GameProps {
   onScore: (score: number) => void;
   onGameOver: () => void;
+  paused?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -482,18 +483,20 @@ function updateState(s: PacState, dt: number): void {
 // ---------------------------------------------------------------------------
 // COMPONENT
 // ---------------------------------------------------------------------------
-export function Game({ onScore, onGameOver }: GameProps) {
+export function Game({ onScore, onGameOver, paused }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<PacState>(createState());
   const rafRef = useRef(0);
   const lastTimeRef = useRef(0);
   const onScoreRef = useRef(onScore);
   const onGameOverRef = useRef(onGameOver);
+  const pausedRef = useRef(paused);
   const gameOverFiredRef = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   onScoreRef.current = onScore;
   onGameOverRef.current = onGameOver;
+  pausedRef.current = paused;
 
   const setDirection = useCallback((dir: number) => {
     const s = stateRef.current;
@@ -539,6 +542,11 @@ export function Game({ onScore, onGameOver }: GameProps) {
 
     const loop = (time: number) => {
       if (lastTimeRef.current === 0) lastTimeRef.current = time;
+      if (pausedRef.current) {
+        lastTimeRef.current = time;
+        rafRef.current = requestAnimationFrame(loop);
+        return;
+      }
       const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05);
       lastTimeRef.current = time;
 
