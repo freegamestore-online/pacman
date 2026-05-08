@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from "react";
+import { useGameSounds } from "@freegamestore/games";
 
 interface GameProps {
   onScore: (score: number) => void;
@@ -493,10 +494,13 @@ export function Game({ onScore, onGameOver, paused }: GameProps) {
   const pausedRef = useRef(paused);
   const gameOverFiredRef = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const sounds = useGameSounds();
+  const soundsRef = useRef(sounds);
 
   onScoreRef.current = onScore;
   onGameOverRef.current = onGameOver;
   pausedRef.current = paused;
+  soundsRef.current = sounds;
 
   const setDirection = useCallback((dir: number) => {
     const s = stateRef.current;
@@ -551,11 +555,27 @@ export function Game({ onScore, onGameOver, paused }: GameProps) {
       lastTimeRef.current = time;
 
       const s = stateRef.current;
+      const prevScore = s.score;
+      const prevLives = s.lives;
       updateState(s, dt);
       onScoreRef.current(s.score);
 
+      // Sound effects based on state changes
+      if (s.score > prevScore) {
+        // Ghost eaten gives 200+ points per ghost
+        if (s.score - prevScore >= 200) {
+          soundsRef.current.playLevelUp();
+        } else {
+          soundsRef.current.playScore();
+        }
+      }
+      if (s.lives < prevLives) {
+        soundsRef.current.playError();
+      }
+
       if (s.gameOver && !gameOverFiredRef.current) {
         gameOverFiredRef.current = true;
+        soundsRef.current.playGameOver();
         onGameOverRef.current();
       }
 
