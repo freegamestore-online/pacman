@@ -51,7 +51,7 @@ export default function App() {
     <GameShell
       topbar={
         <GameTopbar
-          title="Pac-Man"
+          title="Dot Muncher"
           stats={[
             { label: "Score", value: score, accent: true },
             { label: "Best", value: bestScore },
@@ -62,9 +62,9 @@ export default function App() {
           actions={<GameAuth />}
           rules={
             <div>
-              <h3 style={{ fontWeight: 700 }}>Pac-Man</h3>
+              <h3 style={{ fontWeight: 700 }}>Dot Muncher</h3>
               <h4 style={{ fontWeight: 600 }}>Rules</h4>
-              <ul><li>Eat all dots to clear the level</li><li>Avoid ghosts — they cost a life</li><li>Power pellets let you eat ghosts temporarily</li></ul>
+              <ul><li>Eat all dots to clear the level</li><li>Avoid chasers — they cost a life</li><li>Power pellets let you eat chasers temporarily</li></ul>
               <h4 style={{ fontWeight: 600 }}>Controls</h4>
               <ul><li>Arrow keys, WASD, or swipe to move</li></ul>
             </div>
