@@ -329,10 +329,12 @@ function updateState(s: PacState, dt: number): void {
     }
   }
 
-  // Move muncher
+  // Move muncher (remember where it was, to catch chasers swapping cells with it)
+  const prevPx = s.px;
+  const prevPy = s.py;
   s.moveTimer += dt * s.pacSpeed;
   if (s.moveTimer >= 1) {
-    s.moveTimer = 0;
+    s.moveTimer -= 1;
 
     // Try next direction first
     if (canMove(s.maze, s.px, s.py, s.nextDir)) {
@@ -374,7 +376,9 @@ function updateState(s: PacState, dt: number): void {
   for (const g of s.chasers) {
     g.moveTimer += dt * s.chaserSpeed;
     if (g.moveTimer < 1) continue;
-    g.moveTimer = 0;
+    g.moveTimer -= 1;
+    const prevGx = g.x;
+    const prevGy = g.y;
 
     // Decide direction: bias toward muncher with some randomness
     const possible: number[] = [];
@@ -418,8 +422,9 @@ function updateState(s: PacState, dt: number): void {
       g.x = ((g.x % COLS) + COLS) % COLS;
     }
 
-    // Collision with muncher
-    if (g.x === s.px && g.y === s.py) {
+    // Collision with muncher (same cell, or swapped cells this frame)
+    const swapped = g.x === prevPx && g.y === prevPy && prevGx === s.px && prevGy === s.py;
+    if ((g.x === s.px && g.y === s.py) || swapped) {
       if (g.scared) {
         g.eaten = true;
         g.scared = false;
