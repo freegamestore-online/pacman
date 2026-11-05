@@ -304,6 +304,18 @@ function drawLives(ctx: CanvasRenderingContext2D, lives: number, cellSize: numbe
   }
 }
 
+// Resize the backing store only when the size changes; assigning width/height
+// reallocates and clears the canvas, so doing it every frame is wasteful.
+export function fitCanvas(canvas: HTMLCanvasElement, w: number, h: number, dpr: number) {
+  const bw = Math.floor(w * dpr);
+  const bh = Math.floor(h * dpr);
+  if (canvas.width === bw && canvas.height === bh) return;
+  canvas.width = bw;
+  canvas.height = bh;
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
+}
+
 // ---------------------------------------------------------------------------
 // GAME LOGIC UPDATE
 // ---------------------------------------------------------------------------
@@ -584,10 +596,7 @@ export function Game({ onScore, onGameOver, paused }: GameProps) {
           const dpr = window.devicePixelRatio || 1;
           const w = parent.clientWidth;
           const h = parent.clientHeight;
-          canvas.width = w * dpr;
-          canvas.height = h * dpr;
-          canvas.style.width = `${w}px`;
-          canvas.style.height = `${h}px`;
+          fitCanvas(canvas, w, h, dpr);
 
           const ctx = canvas.getContext("2d");
           if (ctx) {
