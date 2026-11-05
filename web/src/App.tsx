@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { GameShell, GameTopbar, GameAuth } from "@freegamestore/games";
 import { Game } from "./components/Game";
+import type { GamePhase } from "./types";
 
 const BEST_SCORE_KEY = "freepacman-best";
 
@@ -10,7 +11,7 @@ function getBestScore(): number {
 }
 
 export default function App() {
-  const [phase, setPhase] = useState<"menu" | "playing" | "over">("playing");
+  const [phase, setPhase] = useState<GamePhase>("playing");
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(getBestScore);
   const [paused, setPaused] = useState(false);

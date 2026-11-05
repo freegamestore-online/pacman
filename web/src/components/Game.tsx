@@ -125,7 +125,7 @@ function createChasers(): Chaser[] {
   ];
 }
 
-function createState(): PacState {
+export function createState(): PacState {
   const maze = cloneMaze();
   return {
     px: 10,
@@ -436,25 +436,7 @@ function updateState(s: PacState, dt: number): void {
 
     // Collision with muncher (same cell, or swapped cells this frame)
     const swapped = g.x === prevPx && g.y === prevPy && prevGx === s.px && prevGy === s.py;
-    if ((g.x === s.px && g.y === s.py) || swapped) {
-      if (g.scared) {
-        g.eaten = true;
-        g.scared = false;
-        g.x = 10;
-        g.y = 9;
-        g.moveTimer = 0;
-        s.chasersEatenThisPower++;
-        s.score += 200 * Math.pow(2, s.chasersEatenThisPower - 1);
-      } else if (!g.eaten) {
-        s.lives--;
-        if (s.lives <= 0) {
-          s.gameOver = true;
-          return;
-        }
-        resetPositions(s);
-        return;
-      }
-    }
+    if (((g.x === s.px && g.y === s.py) || swapped) && collide(s, g)) return;
   }
 
   // Reset eaten status when power ends
@@ -468,26 +450,28 @@ function updateState(s: PacState, dt: number): void {
 
   // Also check collision after muncher moves (chaser may be on same cell)
   for (const g of s.chasers) {
-    if (g.x === s.px && g.y === s.py && !g.eaten) {
-      if (g.scared) {
-        g.eaten = true;
-        g.scared = false;
-        g.x = 10;
-        g.y = 9;
-        g.moveTimer = 0;
-        s.chasersEatenThisPower++;
-        s.score += 200 * Math.pow(2, s.chasersEatenThisPower - 1);
-      } else {
-        s.lives--;
-        if (s.lives <= 0) {
-          s.gameOver = true;
-          return;
-        }
-        resetPositions(s);
-        return;
-      }
-    }
+    if (g.x === s.px && g.y === s.py && collide(s, g)) return;
   }
+}
+
+// Muncher touches a chaser: eat it if scared, otherwise lose a life.
+// Returns true when a life was lost (positions reset or game over).
+export function collide(s: PacState, g: Chaser): boolean {
+  if (g.scared) {
+    g.eaten = true;
+    g.scared = false;
+    g.x = 10;
+    g.y = 9;
+    g.moveTimer = 0;
+    s.chasersEatenThisPower++;
+    s.score += 200 * Math.pow(2, s.chasersEatenThisPower - 1);
+    return false;
+  }
+  if (g.eaten) return false;
+  s.lives--;
+  if (s.lives <= 0) s.gameOver = true;
+  else resetPositions(s);
+  return true;
 }
 
 // ---------------------------------------------------------------------------
